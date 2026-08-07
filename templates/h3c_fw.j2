@@ -1,0 +1,16 @@
+{# H3C防火墙模板 (SECPATH F5010) #}
+{# ACL高级配置 #}
+{# ============================== #}
+{# 设备: {{ device.name }} ({{ device.model }}) #}
+{# 方向: {{ device.direction }} #}
+{# 规则: {{ rule_name }} #}
+{# ============================== #}
+
+acl advanced name {{ rule_name }}
+{% for src in src_entries %}
+{% for dst in dst_entries %}
+{% for port in ports %}
+ rule {{ loop.index0 }} permit {{ protocol }} source {{ src.ip }} 0 destination {{ dst.ip }} 0 destination-port eq {{ port }}
+{% endfor %}
+{% endfor %}
+{% endfor %}

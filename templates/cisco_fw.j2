@@ -1,0 +1,32 @@
+{# Cisco ASA防火墙模板 (ASA 5525) #}
+{# 访问控制列表配置 #}
+{# ============================== #}
+{# 设备: {{ device.name }} ({{ device.model }}) #}
+{# 方向: {{ device.direction }} #}
+{# 规则: {{ rule_name }} #}
+{# ============================== #}
+
+{# 对象组定义 #}
+{% if src_mode == 'detail' and src_entries | length > 1 %}
+object-group network OBJ_{{ rule_name }}_SRC
+{% for entry in src_entries %}
+ network-object host {{ entry.ip }}
+{% endfor %}
+{% endif %}
+
+{% if dst_mode == 'detail' and dst_entries | length > 1 %}
+object-group network OBJ_{{ rule_name }}_DST
+{% for entry in dst_entries %}
+ network-object host {{ entry.ip }}
+{% endfor %}
+{% endif %}
+
+{% if port_mode == 'detail' and ports | length > 1 %}
+object-group service OBJ_{{ rule_name }}_SVC {{ protocol }}
+{% for port in ports %}
+ port-object eq {{ port }}
+{% endfor %}
+{% endif %}
+
+{# 访问控制列表 #}
+access-list acl-{{ device.acl_prefix }} line 1 extended permit {{ protocol }} {% if src_mode == 'existing' %}object-group {{ src_existing }}{% elif src_entries | length > 1 %}object-group OBJ_{{ rule_name }}_SRC{% else %}host {{ src_entries[0].ip }}{% endif %} {% if dst_mode == 'existing' %}object-group {{ dst_existing }}{% elif dst_entries | length > 1 %}object-group OBJ_{{ rule_name }}_DST{% else %}host {{ dst_entries[0].ip }}{% endif %} {% if port_mode == 'existing' %}object-group {{ port_existing }}{% elif ports | length > 1 %}object-group OBJ_{{ rule_name }}_SVC{% else %}eq {{ ports[0] }}{% endif %}

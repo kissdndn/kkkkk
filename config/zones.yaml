@@ -1,0 +1,99 @@
+# 区域-设备映射配置
+# 根据实际环境修改
+
+zones:
+  业务:
+    level: 4
+    role: 内部网络
+    has_firewall: true
+    has_acl: true
+    firewall:
+      name: F064-YW-001
+      vendor: huawei
+      model: USG6630E
+      version: "V5.170"
+      zones:
+        inside: 接业务核心交换机
+        outside: 接核心交换机
+    core_switch:
+      name: S064-YW-002
+      vendor: huawei
+      model: CE16808
+      version: "V8.220"
+
+  OA:
+    level: 3
+    role: 内部网络
+    has_firewall: true
+    has_acl: true
+    firewall:
+      name: F064-OA-001
+      vendor: huawei
+      model: USG6630E
+      version: "V5.170"
+      zones:
+        inside: 接OA核心交换机
+        outside: 接核心交换机
+    core_switch:
+      name: S064-OA-002
+      vendor: h3c
+      model: S10506
+      version: "Comware V7.1.070"
+
+  城域网:
+    level: 2
+    role: 内部边界
+    has_firewall: true
+    has_acl: true
+    firewall:
+      name: F064-LW-001
+      vendor: h3c
+      model: SECPATH F5010
+      version: "Comware V7.1.064"
+      zones:
+        inside: 接核心交换机
+        outside: 接城域网互联交换机
+    core_switch: null
+
+  外联:
+    level: 1
+    role: 外部边界
+    has_firewall: true
+    has_acl: true
+    firewall:
+      name: F064-WL-001
+      vendor: cisco
+      model: ASA 5525
+      version: "ASA OS"
+      zones:
+        inside: 接核心交换机
+        outside: 接外联互联交换机
+        dmz: 外联DMZ区域
+    core_switch: null
+
+  灾备:
+    level: 3
+    role: 内部网络
+    has_firewall: true
+    has_acl: true
+    firewall:
+      name: F064-ZBXC-001
+      vendor: huawei
+      model: USG6635F
+      version: "V1.23.0.1"
+      zones:
+        inside: 接灾备核心交换机
+        outside: 接核心交换机
+    core_switch:
+      name: S064-ZBXC-002
+      vendor: h3c
+      model: S6730-HI-48S
+      version: "V1.23.0.1"
+
+  连总:
+    level: 5
+    role: 一级骨干网
+    has_firewall: false
+    has_acl: false
+    firewall: null
+    core_switch: null

@@ -1,0 +1,24 @@
+# 大核心交换机端口映射表
+# 格式: 端口名: 区域名
+# 从端口明细表导入
+
+port_to_zone:
+  # === 关注区域 ===
+  Vlanif303: 业务
+  Vlanif304: OA
+  Vlanif305: 城域网
+  Vlanif306: 外联
+  Vlanif308: 灾备
+  10GE4/0/4: 连总
+  10GE1/0/4: 连总
+
+  # === 丢弃区域（路由表里有，但程序忽略）===
+  Vlanif302: 安防
+  Vlanif316: 人行
+  Vlanif326: 无线
+
+  # === 大核心互联端口（丢弃）===
+  Eth-Trunk2: INTERCONNECT
+  10GE3/0/3: INTERCONNECT
+  10GE1/0/1: INTERCONNECT
+  10GE1/0/3: INTERCONNECT

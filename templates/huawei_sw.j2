@@ -1,0 +1,15 @@
+{# 华为交换机模板 (CE16808) #}
+{# ACL高级配置 #}
+{# ============================== #}
+{# 设备: {{ device.name }} ({{ device.model }}) #}
+{# 规则: ACL-{{ rule_name }} #}
+{# ============================== #}
+
+acl name ACL-{{ rule_name }} advance
+{% for src in src_entries %}
+{% for dst in dst_entries %}
+{% for port in ports %}
+ rule {{ loop.index0 + 5 }} permit {{ protocol }} source {{ src.ip }} 0 destination {{ dst.ip }} 0 destination-port eq {{ port }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
