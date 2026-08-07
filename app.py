@@ -108,7 +108,7 @@ def analyze():
         scene_type, devices, description, policy_info = path_engine.analyze(src_zone, dst_zone)
         
         # 解析端口
-        from core.ip_parser import IPParser
+        port_parts = port_input.split(',') if port_input else []
         
         return jsonify({
             'success': True,
