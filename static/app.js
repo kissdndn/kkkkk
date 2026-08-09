@@ -7,6 +7,13 @@ let devicesConfig = [];
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
     showStep(1);
+    // 绑定命名规则预览事件监听器
+    setTimeout(function() {
+        const dateInput = document.getElementById('rule_date');
+        const seqInput = document.getElementById('rule_seq');
+        if (dateInput) dateInput.addEventListener('input', updateRulePreview);
+        if (seqInput) seqInput.addEventListener('input', updateRulePreview);
+    }, 100);
 });
 
 // 显示指定步骤
@@ -110,6 +117,11 @@ function showDeviceConfig() {
         return;
     }
 
+    // 初始化日期和预览
+    const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+    document.getElementById('rule_date').value = today;
+    updateRulePreview();
+
     let html = '';
     devices.forEach((device, index) => {
         html += `
@@ -118,13 +130,6 @@ function showDeviceConfig() {
                     <span class="device-icon">🖥️</span>
                     ${device.name} (${device.type})
                 </h4>
-                
-                <!-- 策略命名 -->
-                <div class="config-mode" style="margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 6px;">
-                    <label style="font-weight: bold; color: #1e3c72;">📝 策略名称：</label>
-                    <input type="text" id="policy_name_${index}" placeholder="请输入策略名称，例如：POLICY_业务系统_访问控制" 
-                           value="${analysisData.description || ''}" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 4px; font-size: 1em;">
-                </div>
                 
                 <!-- 源地址配置 -->
                 <div class="config-mode">
@@ -252,22 +257,31 @@ async function generateConfig() {
         return;
     }
 
+    // 获取命名规则参数
+    const today = document.getElementById('rule_date').value.trim();
+    const seq = document.getElementById('rule_seq').value.trim();
+    
+    if (!today || !seq) {
+        alert('请输入日期和序号');
+        return;
+    }
+
     const devicesConfig = [];
     devices.forEach((device, index) => {
         const srcMode = document.getElementById(`src_mode_${index}`).value;
         const dstMode = document.getElementById(`dst_mode_${index}`).value;
         const portMode = document.getElementById(`port_mode_${index}`).value;
         
-        // 获取策略名称（优先使用设备独立的策略名，否则使用全局描述）
-        const policyNameInput = document.getElementById(`policy_name_${index}`);
-        const policyName = policyNameInput ? policyNameInput.value.trim() : (document.getElementById('description').value.trim());
+        // 根据命名规范生成 rule_name: acl-{inside/outside}-{YYYYMMDD}-{序号}
+        const aclPrefix = device.acl_prefix || 'inside';
+        const ruleName = `acl-${aclPrefix}-${today}-${seq}`;
         
         devicesConfig.push({
             device: device,
             src_mode: srcMode,
             dst_mode: dstMode,
             port_mode: portMode,
-            rule_name: policyName,  // 使用每个设备独立的策略名称
+            rule_name: ruleName,  // 使用标准命名格式
             // 根据模式获取对应的值
             src_addrset_name: srcMode === 'addrset' ? (document.getElementById(`src_addrset_${index}`)?.value || '') : '',
             dst_addrset_name: dstMode === 'addrset' ? (document.getElementById(`dst_addrset_${index}`)?.value || '') : '',
@@ -294,7 +308,6 @@ async function generateConfig() {
                 dst_entries: dstEntries,
                 ports: ports,
                 protocol: analysisData.protocol,
-                rule_name: document.getElementById('description').value,  // 保留全局描述作为备用
                 devices_config: devicesConfig
             })
         });
@@ -314,7 +327,24 @@ async function generateConfig() {
 }
 
 // 解析 IP 输入
-function parseIpInput(input) {
+async function parseIpInput(input) {
+    // 调用后端 API 进行标准化解析
+    try {
+        const response = await fetch('/api/parse_ip', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ raw_input: input })
+        });
+        const data = await response.json();
+        if (data.success) {
+            return data.entries;
+        }
+    } catch (error) {
+        console.error('IP parse error:', error);
+    }
+    // Fallback: 本地简单解析
     const lines = input.split(/[,\n]/).map(s => s.trim()).filter(s => s);
     return lines.map(line => {
         if (line.includes('/')) {
@@ -329,6 +359,19 @@ function parseIpInput(input) {
 function parsePortInput(input) {
     if (!input) return [];
     return input.split(',').map(s => s.trim()).filter(s => s);
+}
+
+// 更新规则命名预览
+function updateRulePreview() {
+    const today = document.getElementById('rule_date')?.value.trim();
+    const seq = document.getElementById('rule_seq')?.value.trim();
+    const previewText = document.getElementById('rule_preview_text');
+    
+    if (today && seq && previewText) {
+        previewText.textContent = `acl-inside-${today}-${seq} / acl-outside-${today}-${seq}`;
+    } else if (previewText) {
+        previewText.textContent = 'acl-inside-YYYYMMDD-001 / acl-outside-YYYYMMDD-001';
+    }
 }
 
 // 显示配置结果
