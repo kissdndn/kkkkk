@@ -1,3 +1,6 @@
+Nothing should be ignored in this case, as the only modified file is a template file (.j2), which is a source/config file and not a build artifact, dependency, or temporary file.
+
+Output: (empty)
 ```
 # Python
 # Compiled and build artifacts
