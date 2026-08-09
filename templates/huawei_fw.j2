@@ -1,76 +1,55 @@
-{# 华为防火墙模板 (USG6630E / USG6635F) #}
-{# 安全策略配置 #}
-{# ============================== #}
-{# 设备: {{ device.name }} ({{ device.model }}) #}
-{# 方向: {{ device.direction }} #}
-{# 规则: {{ rule_name }} #}
-{# ============================== #}
-
-{# 新建源Address-set #}
-{% if src_mode == 'addrset' %}
+{#- 华为防火墙模板 (USG6630E / USG6635F) -#}
+{%- if src_mode == 'addrset' %}
 ip address-set {{ src_addrset_name }} type object
-{% for entry in src_entries %}
+{%- for entry in src_entries %}
  address {{ loop.index0 }} {{ entry.ip }} mask {{ entry.mask }}
-{% endfor %}
+{%- endfor %}
 
-{% endif %}
-
-{# 新建目的Address-set #}
-{% if dst_mode == 'addrset' %}
+{% endif -%}
+{%- if dst_mode == 'addrset' %}
 ip address-set {{ dst_addrset_name }} type object
-{% for entry in dst_entries %}
+{%- for entry in dst_entries %}
  address {{ loop.index0 }} {{ entry.ip }} mask {{ entry.mask }}
-{% endfor %}
+{%- endfor %}
 
-{% endif %}
-
-{# 新建Service-set #}
-{% if port_mode == 'svcset' %}
+{% endif -%}
+{%- if port_mode == 'svcset' %}
 ip service-set {{ port_svcset_name }} type object
-{% for port in ports %}
+{%- for port in ports %}
  service {{ loop.index0 }} protocol {{ protocol }} destination-port {{ port }}
-{% endfor %}
+{%- endfor %}
 
-{% endif %}
-
-{# 安全策略 #}
+{% endif -%}
 security-policy
  rule name {{ rule_name }}
   source-zone {{ device.acl_prefix }}
   destination-zone {{ 'outside' if device.is_src_fw else 'inside' }}
-
-  {# 源地址 #}
-  {% if src_mode == 'existing' %}
+{%- if src_mode == 'existing' %}
   source-address address-set {{ src_existing }}
-  {% elif src_mode == 'addrset' %}
+{%- elif src_mode == 'addrset' %}
   source-address address-set {{ src_addrset_name }}
-  {% else %}
-  {% for entry in src_entries %}
+{%- else %}
+{%- for entry in src_entries %}
   source-address {{ entry.ip }} mask {{ entry.mask }}
-  {% endfor %}
-  {% endif %}
-
-  {# 目的地址 #}
-  {% if dst_mode == 'existing' %}
+{%- endfor %}
+{%- endif %}
+{%- if dst_mode == 'existing' %}
   destination-address address-set {{ dst_existing }}
-  {% elif dst_mode == 'addrset' %}
+{%- elif dst_mode == 'addrset' %}
   destination-address address-set {{ dst_addrset_name }}
-  {% else %}
-  {% for entry in dst_entries %}
+{%- else %}
+{%- for entry in dst_entries %}
   destination-address {{ entry.ip }} mask {{ entry.mask }}
-  {% endfor %}
-  {% endif %}
-
-  {# 端口/服务 #}
-  {% if port_mode == 'existing' %}
+{%- endfor %}
+{%- endif %}
+{%- if port_mode == 'existing' %}
   service service-set {{ port_existing }}
-  {% elif port_mode == 'svcset' %}
+{%- elif port_mode == 'svcset' %}
   service service-set {{ port_svcset_name }}
-  {% else %}
-  {% for port in ports %}
+{%- else %}
+{%- for port in ports %}
   service protocol {{ protocol }} destination-port {{ port }}
-  {% endfor %}
-  {% endif %}
-
+{%- endfor %}
+{%- endif %}
   action permit
   logging enable
