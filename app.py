@@ -156,16 +156,10 @@ def generate():
         protocol = data.get('protocol', 'tcp')
         global_rule_name = data.get('rule_name', '')
         
-        # 使用 IPParser 标准化地址条目（将 CIDR 转换为标准格式）
-        src_raw_input = ','.join([f"{e['ip']}/{e['mask']}" if e['mask'] != '32' else e['ip'] for e in src_entries_data])
-        dst_raw_input = ','.join([f"{e['ip']}/{e['mask']}" if e['mask'] != '32' else e['ip'] for e in dst_entries_data])
-        
-        src_parsed = IPParser.parse(src_raw_input) if src_raw_input else []
-        dst_parsed = IPParser.parse(dst_raw_input) if dst_raw_input else []
-        
-        # 转换为标准格式 [{ip, mask}]，mask 为子网掩码字符串
-        src_entries = IPParser.to_firewall_entries(src_parsed)
-        dst_entries = IPParser.to_firewall_entries(dst_parsed)
+        # 前端已经返回了标准格式 [{ip, mask}]，直接使用
+        # 但需要确保 mask 是子网掩码格式（前端 cidrToMask 已处理）
+        src_entries = src_entries_data
+        dst_entries = dst_entries_data
         
         # 设备配置模式
         devices_config = data.get('devices_config', [])
