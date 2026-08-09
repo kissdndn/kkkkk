@@ -1,12 +1,29 @@
 ```
+# Python
 # Compiled and build artifacts
 # Python
 __pycache__/
 *.pyc
 __pycache__/
-*.o
-*.obj
+*.py[cod]
+*$py.class
 *.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 *.dll
 *.exe
 *.class
@@ -33,7 +50,7 @@ pip-selfcheck.json
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editors
 # important
@@ -71,15 +88,26 @@ wheels/
 .idea/
 *.swo
 
-# System files
-.DS_Store
-Thumbs.db
+# Logs
+*.log
+
+# Temp files
+*.tmp
 
 # Coverage
-coverage/
-htmlcov/
 .coverage
+htmlcov/
+coverage/
 
+# Distribution / packaging
+.Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+```
 # Compressed files
 *.zip
 *.gz
