@@ -344,15 +344,32 @@ async function parseIpInput(input) {
     } catch (error) {
         console.error('IP parse error:', error);
     }
-    // Fallback: 本地简单解析
+    // Fallback: 本地简单解析（返回标准子网掩码格式）
     const lines = input.split(/[,\n]/).map(s => s.trim()).filter(s => s);
     return lines.map(line => {
         if (line.includes('/')) {
-            const [ip, mask] = line.split('/');
-            return { ip: ip.trim(), mask: mask.trim() };
+            const [ip, cidr] = line.split('/');
+            const cidrPrefix = parseInt(cidr.trim());
+            // 将 CIDR 前缀转换为子网掩码
+            const mask = cidrToMask(cidrPrefix);
+            return { ip: ip.trim(), mask: mask };
         }
-        return { ip: line, mask: '32' };
+        return { ip: line, mask: '255.255.255.255' };
     });
+}
+
+// CIDR 前缀转子网掩码
+function cidrToMask(cidr) {
+    if (isNaN(cidr) || cidr < 0 || cidr > 32) {
+        return '255.255.255.255';
+    }
+    const maskInt = (0xFFFFFFFF << (32 - cidr)) & 0xFFFFFFFF;
+    return [
+        (maskInt >> 24) & 0xFF,
+        (maskInt >> 16) & 0xFF,
+        (maskInt >> 8) & 0xFF,
+        maskInt & 0xFF
+    ].join('.');
 }
 
 // 解析端口输入
