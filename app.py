@@ -154,7 +154,7 @@ def generate():
         dst_entries_data = data.get('dst_entries', [])
         ports = data.get('ports', [])
         protocol = data.get('protocol', 'tcp')
-        rule_name = data.get('rule_name', '')
+        global_rule_name = data.get('rule_name', '')
         
         # 转换地址条目格式
         src_entries = [{'ip': e['ip'], 'mask': e['mask']} for e in src_entries_data]
@@ -177,6 +177,8 @@ def generate():
             src_existing = dev_config.get('src_existing', '')
             dst_existing = dev_config.get('dst_existing', '')
             port_existing = dev_config.get('port_existing', '')
+            # 优先使用设备独立的策略名称，否则使用全局规则名称
+            rule_name = dev_config.get('rule_name', global_rule_name)
             
             config = config_generator.generate(
                 device=device,

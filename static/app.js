@@ -118,6 +118,15 @@ function showDeviceConfig() {
                     <span class="device-icon">🖥️</span>
                     ${device.name} (${device.type})
                 </h4>
+                
+                <!-- 策略命名 -->
+                <div class="config-mode" style="margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 6px;">
+                    <label style="font-weight: bold; color: #1e3c72;">📝 策略名称：</label>
+                    <input type="text" id="policy_name_${index}" placeholder="请输入策略名称，例如：POLICY_业务系统_访问控制" 
+                           value="${analysisData.description || ''}" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 4px; font-size: 1em;">
+                </div>
+                
+                <!-- 源地址配置 -->
                 <div class="config-mode">
                     <div>
                         <label>源地址模式：</label>
@@ -128,17 +137,19 @@ function showDeviceConfig() {
                         </select>
                     </div>
                     <div id="src_detail_inputs_${index}" class="mode-inputs">
-                        <small>将使用上方输入的明细 IP 地址</small>
+                        <small>✅ 将使用上方输入的明细 IP 地址</small>
                     </div>
                     <div id="src_addrset_inputs_${index}" class="mode-inputs" style="display:none;">
-                        <label>源地址集名称：</label>
+                        <label>🆕 源地址集名称：</label>
                         <input type="text" id="src_addrset_${index}" placeholder="例如：ADDR_SET_SRC_业务名">
                     </div>
                     <div id="src_existing_inputs_${index}" class="mode-inputs" style="display:none;">
-                        <label>现有源地址集名称：</label>
-                        <input type="text" id="src_existing_${index}" placeholder="选择已有的地址集名称">
+                        <label>📋 现有源地址集名称：</label>
+                        <input type="text" id="src_existing_${index}" placeholder="输入已有的地址集名称">
                     </div>
                 </div>
+                
+                <!-- 目的地址配置 -->
                 <div class="config-mode">
                     <div>
                         <label>目的地址模式：</label>
@@ -149,20 +160,22 @@ function showDeviceConfig() {
                         </select>
                     </div>
                     <div id="dst_detail_inputs_${index}" class="mode-inputs">
-                        <small>将使用上方输入的明细 IP 地址</small>
+                        <small>✅ 将使用上方输入的明细 IP 地址</small>
                     </div>
                     <div id="dst_addrset_inputs_${index}" class="mode-inputs" style="display:none;">
-                        <label>目的地址集名称：</label>
+                        <label>🆕 目的地址集名称：</label>
                         <input type="text" id="dst_addrset_${index}" placeholder="例如：ADDR_SET_DST_业务名">
                     </div>
                     <div id="dst_existing_inputs_${index}" class="mode-inputs" style="display:none;">
-                        <label>现有目的地址集名称：</label>
-                        <input type="text" id="dst_existing_${index}" placeholder="选择已有的地址集名称">
+                        <label>📋 现有目的地址集名称：</label>
+                        <input type="text" id="dst_existing_${index}" placeholder="输入已有的地址集名称">
                     </div>
                 </div>
+                
+                <!-- 端口配置 -->
                 <div class="config-mode">
                     <div>
-                        <label>端口模式：</label>
+                        <label>端口/服务模式：</label>
                         <select id="port_mode_${index}" onchange="toggleModeInputs(${index}, 'port')">
                             <option value="detail">明细端口</option>
                             <option value="svcset">服务集（新建）</option>
@@ -170,15 +183,15 @@ function showDeviceConfig() {
                         </select>
                     </div>
                     <div id="port_detail_inputs_${index}" class="mode-inputs">
-                        <small>将使用上方输入的明细端口</small>
+                        <small>✅ 将使用上方输入的明细端口</small>
                     </div>
                     <div id="port_svcset_inputs_${index}" class="mode-inputs" style="display:none;">
-                        <label>服务集名称：</label>
+                        <label>🆕 服务集名称：</label>
                         <input type="text" id="port_svcset_${index}" placeholder="例如：SVC_SET_业务名">
                     </div>
                     <div id="port_existing_inputs_${index}" class="mode-inputs" style="display:none;">
-                        <label>现有服务集名称：</label>
-                        <input type="text" id="port_existing_${index}" placeholder="选择已有的服务集名称">
+                        <label>📋 现有服务集名称：</label>
+                        <input type="text" id="port_existing_${index}" placeholder="输入已有的服务集名称">
                     </div>
                 </div>
             </div>
@@ -186,6 +199,14 @@ function showDeviceConfig() {
     });
 
     devicesList.innerHTML = html;
+    
+    // 初始化显示第一个设备的默认输入框
+    devices.forEach((device, index) => {
+        toggleModeInputs(index, 'src');
+        toggleModeInputs(index, 'dst');
+        toggleModeInputs(index, 'port');
+    });
+    
     showStep(3);
 }
 
@@ -195,20 +216,25 @@ function toggleModeInputs(index, type) {
     const mode = modeSelect.value;
     
     // 隐藏所有输入框
-    document.getElementById(`${type}_detail_inputs_${index}`).style.display = 'none';
-    document.getElementById(`${type}_addrset_inputs_${index}`).style.display = 'none';
-    document.getElementById(`${type}_existing_inputs_${index}`).style.display = 'none';
-    document.getElementById(`${type}_svcset_inputs_${index}`).style.display = 'none';
+    const detailInputs = document.getElementById(`${type}_detail_inputs_${index}`);
+    const addrsetInputs = document.getElementById(`${type}_addrset_inputs_${index}`);
+    const existingInputs = document.getElementById(`${type}_existing_inputs_${index}`);
+    const svcsetInputs = document.getElementById(`${type}_svcset_inputs_${index}`);
+    
+    if (detailInputs) detailInputs.style.display = 'none';
+    if (addrsetInputs) addrsetInputs.style.display = 'none';
+    if (existingInputs) existingInputs.style.display = 'none';
+    if (svcsetInputs) svcsetInputs.style.display = 'none';
     
     // 显示对应输入框
     if (mode === 'detail') {
-        document.getElementById(`${type}_detail_inputs_${index}`).style.display = 'block';
+        if (detailInputs) detailInputs.style.display = 'block';
     } else if (mode === 'addrset') {
-        document.getElementById(`${type}_addrset_inputs_${index}`).style.display = 'block';
+        if (addrsetInputs) addrsetInputs.style.display = 'block';
     } else if (mode === 'existing') {
-        document.getElementById(`${type}_existing_inputs_${index}`).style.display = 'block';
+        if (existingInputs) existingInputs.style.display = 'block';
     } else if (mode === 'svcset') {
-        document.getElementById(`${type}_svcset_inputs_${index}`).style.display = 'block';
+        if (svcsetInputs) svcsetInputs.style.display = 'block';
     }
 }
 
@@ -232,11 +258,16 @@ async function generateConfig() {
         const dstMode = document.getElementById(`dst_mode_${index}`).value;
         const portMode = document.getElementById(`port_mode_${index}`).value;
         
+        // 获取策略名称（优先使用设备独立的策略名，否则使用全局描述）
+        const policyNameInput = document.getElementById(`policy_name_${index}`);
+        const policyName = policyNameInput ? policyNameInput.value.trim() : (document.getElementById('description').value.trim());
+        
         devicesConfig.push({
             device: device,
             src_mode: srcMode,
             dst_mode: dstMode,
             port_mode: portMode,
+            rule_name: policyName,  // 使用每个设备独立的策略名称
             // 根据模式获取对应的值
             src_addrset_name: srcMode === 'addrset' ? (document.getElementById(`src_addrset_${index}`)?.value || '') : '',
             dst_addrset_name: dstMode === 'addrset' ? (document.getElementById(`dst_addrset_${index}`)?.value || '') : '',
@@ -263,7 +294,7 @@ async function generateConfig() {
                 dst_entries: dstEntries,
                 ports: ports,
                 protocol: analysisData.protocol,
-                rule_name: document.getElementById('description').value,
+                rule_name: document.getElementById('description').value,  // 保留全局描述作为备用
                 devices_config: devicesConfig
             })
         });
