@@ -13,14 +13,25 @@
 
 from collections import defaultdict
 
-# 区域定义
+# 区域定义 - 包含完整的厂商和设备信息
 ZONES = {
-    "业务": {"level": 4, "role": "内部网络", "has_firewall": True, "has_acl": True},
-    "OA": {"level": 3, "role": "内部网络", "has_firewall": True, "has_acl": True},
-    "灾备": {"level": 3, "role": "内部网络", "has_firewall": True, "has_acl": True},
-    "城域网": {"level": 2, "role": "内部边界", "has_firewall": True, "has_acl": True},
-    "连总": {"level": 5, "role": "一级骨干网", "has_firewall": False, "has_acl": False},
-    "外联": {"level": 1, "role": "外部边界", "has_firewall": True, "has_acl": True},
+    "业务": {"level": 4, "role": "内部网络", "has_firewall": True, "has_acl": True, 
+            "firewall": {"vendor": "huawei", "model": "USG6630E"},
+            "core_switch": {"vendor": "huawei", "model": "CE16808"}},
+    "OA": {"level": 3, "role": "内部网络", "has_firewall": True, "has_acl": True,
+           "firewall": {"vendor": "huawei", "model": "USG6630E"},
+           "core_switch": {"vendor": "h3c", "model": "S10506"}},
+    "灾备": {"level": 3, "role": "内部网络", "has_firewall": True, "has_acl": True,
+             "firewall": {"vendor": "huawei", "model": "USG6635F"},
+             "core_switch": {"vendor": "h3c", "model": "S6730-HI-48S"}},
+    "城域网": {"level": 2, "role": "内部边界", "has_firewall": True, "has_acl": True,
+               "firewall": {"vendor": "h3c", "model": "SECPATH F5010"},
+               "core_switch": None},
+    "连总": {"level": 5, "role": "一级骨干网", "has_firewall": False, "has_acl": False,
+             "firewall": None, "core_switch": None},
+    "外联": {"level": 1, "role": "外部边界", "has_firewall": True, "has_acl": True,
+             "firewall": {"vendor": "cisco", "model": "ASA 5525"},
+             "core_switch": None},
 }
 
 # 关注区域白名单

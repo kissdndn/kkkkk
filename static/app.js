@@ -121,41 +121,64 @@ function showDeviceConfig() {
                 <div class="config-mode">
                     <div>
                         <label>源地址模式：</label>
-                        <select id="src_mode_${index}">
+                        <select id="src_mode_${index}" onchange="toggleModeInputs(${index}, 'src')">
                             <option value="detail">明细地址</option>
-                            <option value="addrset">地址集</option>
-                            <option value="existing">引用现有</option>
+                            <option value="addrset">地址集（新建）</option>
+                            <option value="existing">引用现有地址集</option>
                         </select>
                     </div>
-                    <div>
-                        <label>目的地址模式：</label>
-                        <select id="dst_mode_${index}">
-                            <option value="detail">明细地址</option>
-                            <option value="addrset">地址集</option>
-                            <option value="existing">引用现有</option>
-                        </select>
+                    <div id="src_detail_inputs_${index}" class="mode-inputs">
+                        <small>将使用上方输入的明细 IP 地址</small>
                     </div>
-                    <div>
-                        <label>端口模式：</label>
-                        <select id="port_mode_${index}">
-                            <option value="detail">明细端口</option>
-                            <option value="svcset">服务集</option>
-                            <option value="existing">引用现有</option>
-                        </select>
+                    <div id="src_addrset_inputs_${index}" class="mode-inputs" style="display:none;">
+                        <label>源地址集名称：</label>
+                        <input type="text" id="src_addrset_${index}" placeholder="例如：ADDR_SET_SRC_业务名">
+                    </div>
+                    <div id="src_existing_inputs_${index}" class="mode-inputs" style="display:none;">
+                        <label>现有源地址集名称：</label>
+                        <input type="text" id="src_existing_${index}" placeholder="选择已有的地址集名称">
                     </div>
                 </div>
-                <div class="config-mode" id="addrset_names_${index}" style="display:none;">
+                <div class="config-mode">
                     <div>
-                        <label>源地址集名称：</label>
-                        <input type="text" id="src_addrset_${index}" placeholder="输入地址集名称">
+                        <label>目的地址模式：</label>
+                        <select id="dst_mode_${index}" onchange="toggleModeInputs(${index}, 'dst')">
+                            <option value="detail">明细地址</option>
+                            <option value="addrset">地址集（新建）</option>
+                            <option value="existing">引用现有地址集</option>
+                        </select>
                     </div>
-                    <div>
+                    <div id="dst_detail_inputs_${index}" class="mode-inputs">
+                        <small>将使用上方输入的明细 IP 地址</small>
+                    </div>
+                    <div id="dst_addrset_inputs_${index}" class="mode-inputs" style="display:none;">
                         <label>目的地址集名称：</label>
-                        <input type="text" id="dst_addrset_${index}" placeholder="输入地址集名称">
+                        <input type="text" id="dst_addrset_${index}" placeholder="例如：ADDR_SET_DST_业务名">
                     </div>
+                    <div id="dst_existing_inputs_${index}" class="mode-inputs" style="display:none;">
+                        <label>现有目的地址集名称：</label>
+                        <input type="text" id="dst_existing_${index}" placeholder="选择已有的地址集名称">
+                    </div>
+                </div>
+                <div class="config-mode">
                     <div>
+                        <label>端口模式：</label>
+                        <select id="port_mode_${index}" onchange="toggleModeInputs(${index}, 'port')">
+                            <option value="detail">明细端口</option>
+                            <option value="svcset">服务集（新建）</option>
+                            <option value="existing">引用现有服务集</option>
+                        </select>
+                    </div>
+                    <div id="port_detail_inputs_${index}" class="mode-inputs">
+                        <small>将使用上方输入的明细端口</small>
+                    </div>
+                    <div id="port_svcset_inputs_${index}" class="mode-inputs" style="display:none;">
                         <label>服务集名称：</label>
-                        <input type="text" id="port_svcset_${index}" placeholder="输入服务集名称">
+                        <input type="text" id="port_svcset_${index}" placeholder="例如：SVC_SET_业务名">
+                    </div>
+                    <div id="port_existing_inputs_${index}" class="mode-inputs" style="display:none;">
+                        <label>现有服务集名称：</label>
+                        <input type="text" id="port_existing_${index}" placeholder="选择已有的服务集名称">
                     </div>
                 </div>
             </div>
@@ -164,6 +187,29 @@ function showDeviceConfig() {
 
     devicesList.innerHTML = html;
     showStep(3);
+}
+
+// 切换模式时显示/隐藏对应输入框
+function toggleModeInputs(index, type) {
+    const modeSelect = document.getElementById(`${type}_mode_${index}`);
+    const mode = modeSelect.value;
+    
+    // 隐藏所有输入框
+    document.getElementById(`${type}_detail_inputs_${index}`).style.display = 'none';
+    document.getElementById(`${type}_addrset_inputs_${index}`).style.display = 'none';
+    document.getElementById(`${type}_existing_inputs_${index}`).style.display = 'none';
+    document.getElementById(`${type}_svcset_inputs_${index}`).style.display = 'none';
+    
+    // 显示对应输入框
+    if (mode === 'detail') {
+        document.getElementById(`${type}_detail_inputs_${index}`).style.display = 'block';
+    } else if (mode === 'addrset') {
+        document.getElementById(`${type}_addrset_inputs_${index}`).style.display = 'block';
+    } else if (mode === 'existing') {
+        document.getElementById(`${type}_existing_inputs_${index}`).style.display = 'block';
+    } else if (mode === 'svcset') {
+        document.getElementById(`${type}_svcset_inputs_${index}`).style.display = 'block';
+    }
 }
 
 // Step 3 -> Step 4: 生成配置
@@ -182,14 +228,22 @@ async function generateConfig() {
 
     const devicesConfig = [];
     devices.forEach((device, index) => {
+        const srcMode = document.getElementById(`src_mode_${index}`).value;
+        const dstMode = document.getElementById(`dst_mode_${index}`).value;
+        const portMode = document.getElementById(`port_mode_${index}`).value;
+        
         devicesConfig.push({
             device: device,
-            src_mode: document.getElementById(`src_mode_${index}`).value,
-            dst_mode: document.getElementById(`dst_mode_${index}`).value,
-            port_mode: document.getElementById(`port_mode_${index}`).value,
-            src_addrset_name: document.getElementById(`src_addrset_${index}`)?.value || '',
-            dst_addrset_name: document.getElementById(`dst_addrset_${index}`)?.value || '',
-            port_svcset_name: document.getElementById(`port_svcset_${index}`)?.value || ''
+            src_mode: srcMode,
+            dst_mode: dstMode,
+            port_mode: portMode,
+            // 根据模式获取对应的值
+            src_addrset_name: srcMode === 'addrset' ? (document.getElementById(`src_addrset_${index}`)?.value || '') : '',
+            dst_addrset_name: dstMode === 'addrset' ? (document.getElementById(`dst_addrset_${index}`)?.value || '') : '',
+            port_svcset_name: portMode === 'svcset' ? (document.getElementById(`port_svcset_${index}`)?.value || '') : '',
+            src_existing: srcMode === 'existing' ? (document.getElementById(`src_existing_${index}`)?.value || '') : '',
+            dst_existing: dstMode === 'existing' ? (document.getElementById(`dst_existing_${index}`)?.value || '') : '',
+            port_existing: portMode === 'existing' ? (document.getElementById(`port_existing_${index}`)?.value || '') : ''
         });
     });
 

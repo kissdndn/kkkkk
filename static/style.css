@@ -204,6 +204,32 @@ header h1 {
     font-size: 0.9em;
 }
 
+.mode-inputs {
+    grid-column: 1 / -1;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.mode-inputs label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.mode-inputs input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.mode-inputs small {
+    color: #666;
+    font-size: 0.85em;
+}
+
 .config-result {
     background: #2d2d2d;
     color: #f8f8f2;
