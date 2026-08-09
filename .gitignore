@@ -1,9 +1,14 @@
 ```gitignore
-# Python
-__pycache__/
+# Compiled and build artifacts
 *.pyc
-*.pyo
-*.pyd
+__pycache__/
+*.o
+*.obj
+
+# Dependencies
+.venv/
+venv/
+node_modules/
 
 Output: (empty)
 ```
@@ -64,15 +69,27 @@ pip-selfcheck.json
 .vscode/
 .idea/
 
-# Dependencies
-.venv/
-venv/
-node_modules/
+# Coverage and testing
+.coverage
+coverage/
+htmlcov/
 
-# Build artifacts
+# Distribution and build
 dist/
 build/
 target/
+*.egg-info/
+
+# Python specific
+*.pyo
+*.pyd
+.Python
+*.so
+
+# System files
+.DS_Store
+Thumbs.db
+```
 ```
 # important
 *.csv

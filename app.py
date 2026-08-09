@@ -248,10 +248,20 @@ def parse_ip():
         # 转换为防火墙配置条目格式
         entries = IPParser.to_firewall_entries(parsed)
         
+        # 将 parsed 中的 IPv4Network 对象转换为字符串，以便 JSON 序列化
+        parsed_serializable = []
+        for p in parsed:
+            item = p.copy()
+            if 'network' in item and hasattr(item['network'], 'str'):
+                item['network'] = str(item['network'])
+            if 'networks' in item:
+                item['networks'] = [str(n) for n in item['networks']]
+            parsed_serializable.append(item)
+        
         return jsonify({
             'success': True,
             'entries': entries,
-            'parsed': parsed
+            'parsed': parsed_serializable
         })
         
     except Exception as e:
